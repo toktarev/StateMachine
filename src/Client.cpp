@@ -71,8 +71,6 @@ void Client::doTransfer() {
         aBytesAvailabie = mSharedMemoryManager->getSyncStructure()->mBytesReady;
       }
 
-      std::cout << (aBytesAvailabie - aBytesWritten) << std::endl;
-
       while (aBytesAvailabie - aBytesWritten > 0) {
         size_t aOffset = ((size_t)(aBytesWritten)) % ((size_t)SHM_BUFFER_SIZE);
 

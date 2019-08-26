@@ -1,5 +1,6 @@
 #pragma once
 
+#include <inttypes.h>
 #include <pthread.h>
 
 #define IPC_KEY_FILE "/"

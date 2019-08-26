@@ -1,8 +1,12 @@
 #include "server/Server.h"
 #include "shm.h"
 #include <algorithm>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include <errno.h>
 #include <ifstream_guard.h>
+#include <inttypes.h>
 #include <iostream>
 #include <pthread.h>
 #include <stdio.h>
@@ -19,6 +23,10 @@ void Server::doTransfer() {
   std::cout << "Starting file's transfer " << std::endl;
 
   mSharedMemoryManager->getSyncStructure()->mBytesReady = 0;
+  uint64_t mStartTransferTime =
+      (uint64_t)std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch())
+          .count();
   mSharedMemoryManager->getSyncStructure()->mServerTransferComplete = false;
 
   char *aBuffer = mSharedMemoryManager->getTransferBuffer();
@@ -72,10 +80,17 @@ void Server::doTransfer() {
     }
   }
 
-  std::cout << "Transfer completed, sent: "
-            << std::to_string(
-                   mSharedMemoryManager->getSyncStructure()->mBytesReady)
-            << std::endl;
+  uint64_t mEndTransferTime =
+      (uint64_t)std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch())
+          .count();
+
+  u_int64_t aDelta = mEndTransferTime - mStartTransferTime;
+
+  printf("Transfer completed, sent %" PRIu64 " bytes Time: %" PRIu64
+         " milliseconds\n",
+         (u_int64_t)mSharedMemoryManager->getSyncStructure()->mBytesReady,
+         aDelta);
 
   if (!mSharedMemoryManager->getSyncStructure()->mServerTransferComplete) {
     mSharedMemoryManager->getSyncStructure()->mServerTransferComplete = true;
