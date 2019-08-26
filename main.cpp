@@ -18,7 +18,7 @@ void printHelp() {
 int main(int argc, char *argv[]) {
   bool aIsServer;
 
-  if (argc == 0) {
+  if (argc == 1) {
     std::cout << "Can' detect server or client option use: [./StateMachine -h]"
               << std::endl;
     exit(0);
