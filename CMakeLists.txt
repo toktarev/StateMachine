@@ -12,8 +12,7 @@ add_executable(StateMachine main.cpp include/StateMachineManager.h include/serve
         include/SharedMemoryResource.h include/client/ClientSharedMemoryResource.h
         include/server/ServerSharedMemoryResource.h src/ClientSharedMemoryResource.cpp src/ServerSharedMemoryResource.cpp
         include/server/ServerManager.h include/client/ClientManager.h
-        include/ifstream_guard.h include/ofstream_guard.h
-)
+        )
 
 target_link_libraries (StateMachine  ${CMAKE_THREAD_LIBS_INIT})
 

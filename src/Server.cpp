@@ -2,15 +2,10 @@
 #include "shm.h"
 #include <algorithm>
 #include <chrono>
-#include <cstdio>
-#include <cstdlib>
-#include <errno.h>
-#include <ifstream_guard.h>
-#include <inttypes.h>
+#include <cinttypes>
 #include <iostream>
-#include <pthread.h>
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
 #include <unistd.h>
 
 void Server::awaitTransfer() {
@@ -30,14 +25,14 @@ void Server::doTransfer() {
   mSharedMemoryManager->getSyncStructure()->mServerTransferComplete = false;
 
   char *aBuffer = mSharedMemoryManager->getTransferBuffer();
-  ifstream_guard aStreamGuard(mFileName);
+  std::ifstream fStream(mFileName);
 
-  if (!aStreamGuard.getFStream()->good()) {
+  if (!fStream.good()) {
     std::cout << "Can't read file " << mFileName;
     *(mSharedMemoryManager->isTransferStarted()) = false;
   }
 
-  while (!aStreamGuard.getFStream()->eof()) {
+  while (!fStream.eof()) {
     {
       plock_guard mGuard{mSharedMemoryManager->getMutex()};
       mSharedMemoryManager->getSyncStructure()->mReceivedClientsChunkNumber = 0;
@@ -51,15 +46,15 @@ void Server::doTransfer() {
                     aReadBytes)) %
           ((size_t)SHM_BUFFER_SIZE);
 
-      aStreamGuard.getFStream()->read(
+        fStream.read(
           aBuffer + aOffset,
           std::min((size_t)(SHM_BUFFER_SIZE - aOffset), (size_t)FILE_CHUNK));
 
-      if (aStreamGuard.getFStream()->gcount() == 0) {
+      if (fStream.gcount() == 0) {
         break;
       }
 
-      aReadBytes += aStreamGuard.getFStream()->gcount();
+      aReadBytes += fStream.gcount();
     }
 
     {
@@ -74,7 +69,7 @@ void Server::doTransfer() {
         mSharedMemoryManager->getSyncStructure()->mReceivedClientsChunkNumber <
         mActiveClientsNumber);
 
-    if (aStreamGuard.getFStream()->eof()) {
+    if (fStream.eof()) {
       mSharedMemoryManager->getSyncStructure()->mServerTransferComplete = true;
       break;
     }
